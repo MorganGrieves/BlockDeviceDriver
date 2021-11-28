@@ -9,8 +9,3 @@ default:
 
 clean:
 	${MAKE} -C "${KERNEL_SOURCE}" M="${PWD}" clean
-test:
-	sudo dmesg -C
-	sudo insmod new_block_driver.ko
-	sudo rmmod new_block_driver.ko
-	dmesg
