@@ -26,8 +26,7 @@ module_param(rd_only, int, 0);
 
 static int dev_major = 0;
 
-struct my_block_dev 
-{
+struct my_block_dev {
         int size;
         u8 *data;
         struct blk_mq_tag_set tag_set;
@@ -143,8 +142,6 @@ static struct blk_mq_ops mq_ops = {
 
 static int __init mybdev_init(void)
 {
-        int status = 0;
-
         // register device
         dev_major = register_blkdev(dev_major, driver_name);
 
@@ -180,33 +177,11 @@ static int __init mybdev_init(void)
         }
         printk(KERN_INFO "mybdev: vmalloc: memory has been allocated\n");
 
-        // initialize tag set
-//         myblock_dev->tag_set.ops = &mq_ops;
-//         myblock_dev->tag_set.nr_hw_queues = 1;
-//         myblock_dev->tag_set.queue_depth = 128;
-//         myblock_dev->tag_set.numa_node = NUMA_NO_NODE;
-//         myblock_dev->tag_set.cmd_size = 0;
-//         myblock_dev->tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
-// 
-//         status = blk_mq_alloc_tag_set(&myblock_dev->tag_set);
-// 
-//         if (status) {
-//                 printk(KERN_ERR "mybdev: failed to allocate tag set\n");
-//                 printk(KERN_ERR "%d\n", status);
-//                 unregister_blkdev(dev_major, driver_name);
-//                 vfree(myblock_dev->data);
-//                 kfree(myblock_dev);
-// 
-//                 return -ENOMEM;
-//         }
-//         printk(KERN_INFO "mybdev: tag set has been allocated\n");
-
         // initialize queue
         myblock_dev->queue = blk_mq_init_sq_queue(&myblock_dev->tag_set, &mq_ops, 128, BLK_MQ_F_SHOULD_MERGE);
         if (IS_ERR(myblock_dev->queue)) {
                 printk(KERN_ERR "mybdev: failed to allocate queue\n");
                 unregister_blkdev(dev_major, driver_name);
-                //blk_mq_free_tag_set(&myblock_dev->tag_set);
                 vfree(myblock_dev->data);
                 kfree(myblock_dev);
 
@@ -220,7 +195,6 @@ static int __init mybdev_init(void)
         myblock_dev->gd = alloc_disk(MY_BLOCK_MINORS);
         if (!myblock_dev->gd) {
                 printk(KERN_ERR "mybdev: failed to allocate disk\n");
-                //blk_mq_free_tag_set(&myblock_dev->tag_set);
                 blk_cleanup_queue(myblock_dev->queue);
                 unregister_blkdev(dev_major, driver_name);
                 vfree(myblock_dev->data);
@@ -252,7 +226,6 @@ static void __exit mybdev_cleanup(void)
             put_disk(myblock_dev->gd);
         }
 
-        //blk_mq_free_tag_set(&myblock_dev->tag_set);
         blk_cleanup_queue(myblock_dev->queue);
         unregister_blkdev(dev_major, driver_name);
         vfree(myblock_dev->data);
